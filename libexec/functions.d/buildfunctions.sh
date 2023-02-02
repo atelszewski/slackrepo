@@ -237,6 +237,7 @@ function build_item_packages
   restorevars=''
   removestubs=''
   removeuname=''
+  removerustup=''
   for pragma in ${HINT_PRAGMA[$itemid]}; do
     case "$pragma" in
     'multilib_ldflags' )
@@ -343,6 +344,16 @@ function build_item_packages
         removeuname='y'
       fi
 
+      ;;
+    'rustup' )
+      log_info -a "Pragma: rustup"
+      for lnk in cargo cargo-fmt rls rustc rustdoc rustfmt rust-gdb rust-lldb ; do
+        (
+          cd /usr/local/sbin
+          ${SUDO}ln -s /usr/bin/rustup $lnk
+        )
+      done
+      removerustup='y'
       ;;
     'kernel'* | curl | wget )
       ;;
@@ -471,6 +482,7 @@ function build_item_packages
   [ -n "$restorevars" ] && eval "$restorevars"
   [ -n "$removestubs" ] && ${SUDO}rm /usr/include/gnu/stubs-32.h
   [ -n "$removeuname" ] && ${SUDO}rm /usr/local/sbin/uname
+  [ -n "$removerustup" ] && ${SUDO}rm /usr/local/sbin/{cargo,cargo-fmt,rls,rustc,rustdoc,rustfmt,rust-gdb,rust-lldb}
 
   # If there's a config.log in the obvious place, save it
   configlog="${TMP_BUILD}/${itemprgnam}-${INFOVERSION[$itemid]}/config.log"
