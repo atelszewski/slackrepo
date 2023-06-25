@@ -640,10 +640,20 @@ function parse_info_and_hints
   HINT_KERNEL[$itemid]='n'
   for pragma in ${HINT_PRAGMA[$itemid]}; do
     case "$pragma" in
-      'kernel')        HINT_KERNEL[$itemid]='kernel' ;;
+      'kernel' )       HINT_KERNEL[$itemid]='kernel' ;;
       'kernelmodule' ) HINT_KERNEL[$itemid]='kernelmodule' ;;
     esac
   done
+
+  if [ -n "${INFODOWNLIST[$itemid]}" ] ; then
+    for pragma in ${HINT_PRAGMA[$itemid]}; do
+      case "$pragma" in
+        'download_urldecode' )
+          INFODOWNLIST[$itemid]="$(printf '%b\n' "${INFODOWNLIST[$itemid]//%/\\x}")"
+          ;;
+      esac
+    done
+  fi
 
   # Fix INFOVERSION from hint file's VERSION, or DOWNLOAD, or git, or SlackBuild's modification time
   local ver="${INFOVERSION[$itemid]}"

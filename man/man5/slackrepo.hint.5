@@ -341,6 +341,14 @@ Rebuild when the build host's kernel is upgraded; 'kernelmodule' also
 causes depmod to be run when the package is uninstalled.
 .
 .PP
+\fkernelversion\fR
+.
+.PP
+Force uname to return the KERNEL env var as the version. This is useful if you
+are building a kernel on a host running a different kernel, but the slackbuild
+(or the software it is building) does not respect the environment variable.
+.
+.PP
 \fBmultilib_ldflags\fR
 .
 .PP
@@ -427,6 +435,14 @@ the memtest86+ README and xen SlackBuild.
 .PP
 Patch the SlackBuild to use the tar command's \fI--absolute-names\fR
 control argument. Use this if you get the error message
+.
+.PP
+\fBdownload_urldecode\fR
+.
+.PP
+URL decode the values from DOWNLOAD before using them. Might need to be combined
+with \fdownload_basename\fR if the slackbuild has a url-encoded DOWNLOAD
+configured and the slackbuilds expects the percent-encoded values.
 .
 .PP
 .RS

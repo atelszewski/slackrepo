@@ -357,6 +357,8 @@ function build_item_packages
       ;;
     'kernel'* | curl | wget )
       ;;
+    'download_urldecode' )
+      ;;
     * )
       log_warning -s -a "${itemid}: Hint PRAGMA=\"$pragma\" not recognised"
       ;;
