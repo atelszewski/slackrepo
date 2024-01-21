@@ -262,25 +262,6 @@ declare -A VALID_USERS VALID_GROUPS
 
 #-------------------------------------------------------------------------------
 
-function chroot_getent
-# Run `getent`, possibly in a chroot if one is provided.
-# $* = arguments as expected by the regular `getent` command
-# Return status: Normally, the status from `getent` is returned.
-# If `sudo` or `chroot` fails, then their status is returned instead.
-{
-  if [ "$OPT_CHROOT" = 'n' ]; then
-    getent "${@}"
-  else
-    if [ -z "${SUDO}" ]; then
-        chroot $OPT_CHROOT getent "${@}"
-    else
-        ${SUDO} chroot --userspec=${USER} $OPT_CHROOT getent "${@}"
-    fi
-  fi
-}
-
-#-------------------------------------------------------------------------------
-
 function parse_info_and_hints
 # Load up .info file into variables INFO*, and hints into variables HINT_*
 # Also populates SRCDIR, GITREV and GITDIRTY
@@ -297,6 +278,13 @@ function parse_info_and_hints
 
   if [ -z "${ITEMFILE[$itemid]}" ]; then
     return 1
+  fi
+
+  local chrootcmd
+  chrootcmd=''
+  if [ "$OPT_CHROOT" != 'n' ] ; then
+    chrootcmd="chroot ${OPT_CHROOT} "  # note the trailing space
+    [ -n "$SUDO" ] && chrootcmd="${SUDO} chroot --userspec=${USER} ${OPT_CHROOT} "
   fi
 
   # INFO DEPARTMENT
@@ -512,7 +500,7 @@ function parse_info_and_hints
           esac
         done
         [ -z "$gnum" ] && { log_warning -n "${itemid}: GROUPADD hint has no GID number" ; break ; }
-        if ! chroot_getent group "$gname" | grep -q "^${gname}:" 2>/dev/null ; then
+        if ! ${chrootcmd}group "$gname" | grep -q "^${gname}:" 2>/dev/null ; then
           HINT_GROUPADD[$itemid]="${HINT_GROUPADD[$itemid]}groupadd -g $gnum $gname; "
         else
           log_info -a "Group $gname already exists."
@@ -541,7 +529,7 @@ function parse_info_and_hints
           esac
         done
         [ -z "$unum" ] && { log_warning -n "${itemid}: USERADD hint has no UID number" ; break ; }
-        if ! chroot_getent passwd "$uname" | grep -q "^${uname}:" 2>/dev/null ; then
+        if ! ${chrootcmd}passwd "$uname" | grep -q "^${uname}:" 2>/dev/null ; then
           [ -z "$ugroup" ] && ugroup="$uname"
           HINT_USERADD[$itemid]="${HINT_USERADD[$itemid]}useradd  -u $unum -g $ugroup -c $itemprgnam -d $udir -s $ushell $uargs $uname; "
         else
