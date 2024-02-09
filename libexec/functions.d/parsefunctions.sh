@@ -500,7 +500,7 @@ function parse_info_and_hints
           esac
         done
         [ -z "$gnum" ] && { log_warning -n "${itemid}: GROUPADD hint has no GID number" ; break ; }
-        if ! ${chrootcmd}group "$gname" | grep -q "^${gname}:" 2>/dev/null ; then
+        if ! ${chrootcmd}getent group "$gname" | grep -q "^${gname}:" 2>/dev/null ; then
           HINT_GROUPADD[$itemid]="${HINT_GROUPADD[$itemid]}groupadd -g $gnum $gname; "
         else
           log_info -a "Group $gname already exists."
@@ -529,7 +529,7 @@ function parse_info_and_hints
           esac
         done
         [ -z "$unum" ] && { log_warning -n "${itemid}: USERADD hint has no UID number" ; break ; }
-        if ! ${chrootcmd}passwd "$uname" | grep -q "^${uname}:" 2>/dev/null ; then
+        if ! ${chrootcmd}getent passwd "$uname" | grep -q "^${uname}:" 2>/dev/null ; then
           [ -z "$ugroup" ] && ugroup="$uname"
           HINT_USERADD[$itemid]="${HINT_USERADD[$itemid]}useradd  -u $unum -g $ugroup -c $itemprgnam -d $udir -s $ushell $uargs $uname; "
         else
